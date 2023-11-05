@@ -1,41 +1,49 @@
-include <BOSL2/std.scad>
-
 middle_radius=250;
 upper_radius=100;
 lower_radius=200;
 
-middle_up = 100;
-lower_middle = -100;
+middle_up = 120;
+lower_middle = -80;
 
 lamp_hole_radius=20;
 plywood=10;
 paper=0.1;
 part_width=20;
 slot_width=5;
+shade_offset=15;
 
-// connection
-module connection(){
-    
+module hexagon(or){
+polygon([for(t=[0:5]) [cos(t*60)*or,sin(t*60)*or]]);
+};
+
+module 2d_connection(){
 chamfer=plywood/(2*tan(60));
-rotate([90,0,0])
-linear_extrude(plywood, center=true)
 union(){
+// upper connection
 polygon(
     [[middle_radius-chamfer,plywood],
      [middle_radius-part_width,plywood],
      [upper_radius-chamfer, middle_up-slot_width],
      [upper_radius-chamfer, middle_up+plywood+slot_width]]
 );
+// upper slot
 translate([upper_radius-chamfer-part_width,middle_up-slot_width,0])
 square([part_width,slot_width]);
 translate([upper_radius-chamfer-part_width,middle_up+plywood,0])
 square([part_width,slot_width]);
+// lower connection
 polygon(
     [[middle_radius-chamfer,0],
      [middle_radius-part_width,0],
-     [lower_radius-part_width, lower_middle],
-     [lower_radius,lower_middle]]
+     [lower_radius-chamfer, lower_middle+plywood+slot_width],
+     [lower_radius-chamfer,lower_middle-slot_width]]
 );
+// lower slot
+translate([lower_radius-chamfer-part_width,lower_middle-slot_width,0])
+square([part_width,slot_width]);
+translate([lower_radius-chamfer-part_width,lower_middle+plywood,0])
+square([part_width,slot_width]);
+// middle slot
 translate([middle_radius-part_width-plywood,0,0]) square([plywood,1.5*plywood]);
 translate([middle_radius-part_width-plywood,0,0])
 difference(){
@@ -43,6 +51,12 @@ scale([1,2.5,1]) circle(r=plywood);
 translate([-plywood, 0,0])scale([1,4,1]) circle(r=plywood);
 };
 };
+};
+
+// connection
+module connection(){    
+rotate([90,0,0])
+linear_extrude(plywood, center=true) 2d_connection();
 };
 
 // shades
@@ -76,6 +90,7 @@ polygon(
 );
 };
 
+module lamp(){
 union(){
 //middle
 linear_extrude(plywood)
@@ -110,12 +125,16 @@ square([upper_radius-lamp_hole_radius-part_width, part_width], center=true);
 translate([0,0,lower_middle])
 linear_extrude(plywood)
 difference(){
+    offset(delta=2*plywood,chamfer=true)offset(delta=-2*plywood)
     hexagon(or=lower_radius);
     hexagon(or=lower_radius-part_width);
 };
 
 for(i=[0:5]){
     rotate([0,0,i*60]) connection();
-    rotate([0,0,i*60]) shade();
+    rotate([0,0,i*60]) shade(shade_offset=shade_offset);
 };
 };
+};
+
+lamp();
