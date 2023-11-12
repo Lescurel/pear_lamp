@@ -1,3 +1,3 @@
-include <lamp.scad>
+include <modules.scad>
 
 lower_part();

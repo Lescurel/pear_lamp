@@ -1,4 +1,0 @@
-include <lamp.scad>
-
-
-lamp();

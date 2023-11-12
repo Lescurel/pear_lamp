@@ -1,4 +1,4 @@
-include <lamp.scad>
+include <modules.scad>
 
 width_shade = middle_radius - 2*shade_offset;
 

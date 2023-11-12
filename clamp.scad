@@ -1,4 +1,4 @@
-include <lamp.scad>
+include <modules.scad>
 
 
 clamp();
