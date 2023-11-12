@@ -42,7 +42,6 @@ module 2d_connection(){
         );
         translate([lower_radius-part_width-chamfer,lower_middle-slot_width,0])
         square([part_width, plywood+2*slot_width]);
-        
         translate([middle_radius-part_width,0,0])
         union(){
         square([part_width-chamfer, plywood]);
@@ -50,7 +49,7 @@ module 2d_connection(){
             };
     };
     //slots
-    tr = 0.85;
+    tr = 0.87;
     union(){
         translate([upper_radius-part_width-chamfer,middle_up+plywood*((1-tr)/2),0])
         square([part_width*3/4, plywood*tr]);
@@ -63,7 +62,7 @@ module 2d_connection(){
 };
 
 // connection
-module connection(){    
+module connection(){
     rotate([90,0,0])
     linear_extrude(plywood, center=true) 2d_connection();
 };
@@ -72,7 +71,6 @@ module 2d_upper_shade(shade_offset=20){
     m_segment_y = sqrt(pow(middle_radius,2)-pow(middle_radius/2,2));
     u_segment_y = sqrt(pow(upper_radius,2)-pow(upper_radius/2,2));
     length_shade = sqrt(pow(m_segment_y-u_segment_y,2)+pow(middle_up,2));
-
     polygon(
         [[middle_radius/2-shade_offset, 0],
          [-middle_radius/2+shade_offset, 0],
@@ -148,11 +146,9 @@ module middle_part(){
         hexagon(or=middle_radius-part_width);
         for(i=[0:5])
         rotate([0,0,i*60])
-        translate([middle_radius-chamfer-part_width,0,0])
+        translate([middle_radius-part_width,0,0])
         square([part_width/4, plywood], center=true);
     };
-    
-  
 };
 
 module lower_part(){
@@ -195,7 +191,4 @@ module clamp(tr=0.9){
         translate([0,slot_width+plywood*((1-tr)/2),0])
         square([part_width*3/4, plywood*tr]);
     };
-    
 };
-
-//lamp();
