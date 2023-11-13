@@ -1,23 +1,38 @@
+// Radius of the 3 hexagonal planes
 middle_radius=250;
 upper_radius=100;
 lower_radius=200;
 
+// vertical distance between the planes
 middle_up = 120;
 lower_middle = -80;
 
+// Radius of the lightbulb holder
 lamp_hole_radius=20;
+// thickness of the material
 plywood=4;
+// Size of the chamfer, no need to change
 chamfer=plywood/(2*tan(60));
 
+// thickness of the shade. It's almost a placeholder, it is there to
+// ensure that the model is fully 3D
 paper=0.1;
+
+// Width of each hex plane. Lowering this too much might weaken the lamp's
+// structural integrity
 part_width=20;
+// Size/height of the clamps "arms"
 slot_width=3;
+
+// Openwork between the armature and the shade
 shade_offset=15;
 
+// Module to define a hexagon
 module hexagon(or){
     polygon([for(t=[0:5]) [cos(t*60)*or,sin(t*60)*or]]);
 };
 
+// Define the connecting arm in 2D
 module 2d_connection(){
     $fn=20;
     chamfer=plywood/(2*tan(60));
@@ -61,12 +76,13 @@ module 2d_connection(){
 };
 };
 
-// connection
+// Extrude the 2d connection and rotate it to the vertical plane
 module connection(){
     rotate([90,0,0])
     linear_extrude(plywood, center=true) 2d_connection();
 };
 
+// 2D upper shade: i.e a trapezoid
 module 2d_upper_shade(shade_offset=20){
     m_segment_y = sqrt(pow(middle_radius,2)-pow(middle_radius/2,2));
     u_segment_y = sqrt(pow(upper_radius,2)-pow(upper_radius/2,2));
@@ -79,6 +95,7 @@ module 2d_upper_shade(shade_offset=20){
     );
 };
 
+// 2D lower shade: a trapezoid
 module 2d_lower_shade(shade_offset=20){
     m_segment_y = sqrt(pow(middle_radius,2)-pow(middle_radius/2,2));
     l_segment_y = sqrt(pow(lower_radius,2)-pow(lower_radius/2,2));
@@ -91,7 +108,7 @@ module 2d_lower_shade(shade_offset=20){
     );
 };
 
-// shades
+// Rotate and extrude the shade to place it in the 3D space
 module shade(shade_offset=20){
     m_segment_y = sqrt(pow(middle_radius,2)-pow(middle_radius/2,2));
     u_segment_y = sqrt(pow(upper_radius,2)-pow(upper_radius/2,2));
@@ -112,6 +129,7 @@ module shade(shade_offset=20){
 
 };
 
+// Upper Plane, with the lightbulb holder hole
 module upper_part(){
     chamfer=plywood/(2*tan(60));
     difference(){
@@ -138,12 +156,14 @@ module upper_part(){
     };
 };
 
+// Middle Plane
 module middle_part(){
     difference(){
         offset(delta=2*plywood,chamfer=true)offset(delta=-2*plywood)
         hexagon(or=middle_radius);
         offset(delta=2*plywood, chamfer=true)offset(delta=-2*plywood)
         hexagon(or=middle_radius-part_width);
+        // slots
         for(i=[0:5])
         rotate([0,0,i*60])
         translate([middle_radius-part_width,0,0])
@@ -151,11 +171,13 @@ module middle_part(){
     };
 };
 
+// Lower plane
 module lower_part(){
     difference(){
         offset(delta=2*plywood,chamfer=true)offset(delta=-2*plywood)
         hexagon(or=lower_radius);
         hexagon(or=lower_radius-part_width);
+        // slots
         for(i=[0:5])
         rotate([0,0,i*60])
         translate([lower_radius-chamfer-part_width/8,0,0])
@@ -163,6 +185,7 @@ module lower_part(){
     };
 };
 
+// Build the 3D model of the lamp
 module lamp(){
     union(){
         //middle
@@ -180,10 +203,11 @@ module lamp(){
     };
 };
 
+// Clamps for holding the shades to the armature
 module clamp(tr=0.9){
     //tolerance
-    // the laser cutter removes part of the material
-    // to get a tight fit for the clamp, we reduce the size to slightly less than the actual material
+    // the laser cutter removes part of the material to get a tight fit for the
+    // clamp, we reduce the size to slightly less than the actual material
     $fn = 20;
     difference(){
         offset(r=3,chamfer=true) offset(r=-3)
